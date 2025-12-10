@@ -19,12 +19,15 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="slot in timeSlots" :key="slot.start" class="time-slot" :data-time="slot.start">
+          <tr
+            v-for="slot in timeSlots"
+            :key="slot.start"
+            @click="selectTimeSlot(slot.start)"
+            :class="['time-slot', { 'is-selected': currentTimeSlot === slot.start }]"
+          >
             <td class="time-label">{{ slot.label }}</td>
             <td class="activity-cell">
-              <div class="activity-item">
-                {{ getActivityForSlot(slot.start) }}
-              </div>
+              <div class="activity-item"></div>
             </td>
           </tr>
         </tbody>
@@ -38,7 +41,7 @@
         <button
           v-for="category in categories"
           :key="category.key"
-          :class="['category-button', { 'is-selected': selectedCategory === category.key }]"
+          class="category-button"
           @click="selectCategory(category.key)"
         >
           {{ category.label }}
@@ -49,18 +52,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, shallowReactive } from 'vue'
 
-// --- State (状態) ---
-
-/** * 現在選択されている日付 (ref: リアクティブな単一の値)
- * 初期値として今日の日付を設定
- */
 const currentDate = ref(new Date())
 
-/** * 現在選択されている活動カテゴリ (ref)
- */
-const selectedCategory = ref<string | null>(null)
+// TODO: keyはindex番号の方が扱いやすいと思う
+const currentTimeSlot = ref<string | null>(null)
+
+type ActivityTasksMap = Map<string, string[]>
+// TODO: key-value
+// slotKey -> [category, category...]
+// Map構造の方が良さそう
+const activities: ActivityTasksMap = shallowReactive(new Map())
 
 /**
  * 活動カテゴリのリスト (定数)
@@ -134,21 +137,19 @@ const nextDay = () => {
  * @param {string} categoryKey - 選択されたカテゴリのキー
  */
 const selectCategory = (categoryKey: string) => {
-  // すでに選択されている場合は解除、そうでなければ選択
-  selectedCategory.value = selectedCategory.value === categoryKey ? null : categoryKey
+  if (!!currentTimeSlot.value) {
+    const key = currentTimeSlot.value
+    const categories = activities.get(key)
+    if (!!categories) {
+      categories.push(categoryKey)
+      activities.set(key, categories)
+    }
+  }
+  console.log(activities)
 }
 
-/**
- * 特定の時間スロットに記録された活動を取得する (モック)
- * @param {string} slotStart - スロットの開始時刻キー
- * @returns {string} - 活動内容の文字列
- */
-const getActivityForSlot = (slotStart: string) => {
-  // 実際にはAPIやストアからcurrentDateとslotStartをキーに活動データを取得する
-  if (slotStart === '10:00' && selectedCategory.value === 'work') {
-    return `[${selectedCategory.value}]: ${slotStart}のMTG`
-  }
-  return ''
+const selectTimeSlot = (timeSlotKey: string) => {
+  currentTimeSlot.value = timeSlotKey
 }
 </script>
 
@@ -205,6 +206,12 @@ const getActivityForSlot = (slotStart: string) => {
   border-bottom: 1px solid #eee;
 }
 
+.time-slot.is-selected {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
 .time-label {
   width: 25%;
   text-align: center;
@@ -222,11 +229,5 @@ const getActivityForSlot = (slotStart: string) => {
   background: #f9f9f9;
   cursor: pointer;
   border-radius: 5px;
-}
-
-.category-button.is-selected {
-  background: #007bff; /* 選択されたボタンの色 */
-  color: white;
-  border-color: #007bff;
 }
 </style>
