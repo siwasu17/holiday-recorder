@@ -132,20 +132,18 @@ const nextDay = () => {
   changeDay(1)
 }
 
-/**
- * カテゴリボタンが押された時の処理
- * @param {string} categoryKey - 選択されたカテゴリのキー
- */
-const selectCategory = (categoryKey: string) => {
+const selectCategory = (category: string) => {
   if (!!currentTimeSlot.value) {
     const key = currentTimeSlot.value
     const categories = activities.get(key)
     if (!!categories) {
-      categories.push(categoryKey)
+      categories.push(category)
       activities.set(key, categories)
+    } else {
+      activities.set(key, [category])
     }
   }
-  console.log(activities)
+  console.log([...activities])
 }
 
 const selectTimeSlot = (timeSlotKey: string) => {
