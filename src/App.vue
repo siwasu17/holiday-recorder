@@ -60,7 +60,7 @@ const currentDate = ref(new Date())
 
 /** * 現在選択されている活動カテゴリ (ref)
  */
-const selectedCategory = ref(null)
+const selectedCategory = ref<string | null>(null)
 
 /**
  * 活動カテゴリのリスト (定数)
@@ -109,7 +109,7 @@ const formattedDate = computed(() => {
  * 日付を指定日数分変更する
  * @param {number} days - 変更する日数 (+1で翌日、-1で前日)
  */
-const changeDay = (days) => {
+const changeDay = (days: number) => {
   const newDate = new Date(currentDate.value)
   newDate.setDate(newDate.getDate() + days)
   currentDate.value = newDate
@@ -133,7 +133,7 @@ const nextDay = () => {
  * カテゴリボタンが押された時の処理
  * @param {string} categoryKey - 選択されたカテゴリのキー
  */
-const selectCategory = (categoryKey) => {
+const selectCategory = (categoryKey: string) => {
   // すでに選択されている場合は解除、そうでなければ選択
   selectedCategory.value = selectedCategory.value === categoryKey ? null : categoryKey
 }
@@ -143,7 +143,7 @@ const selectCategory = (categoryKey) => {
  * @param {string} slotStart - スロットの開始時刻キー
  * @returns {string} - 活動内容の文字列
  */
-const getActivityForSlot = (slotStart) => {
+const getActivityForSlot = (slotStart: string) => {
   // 実際にはAPIやストアからcurrentDateとslotStartをキーに活動データを取得する
   if (slotStart === '10:00' && selectedCategory.value === 'work') {
     return `[${selectedCategory.value}]: ${slotStart}のMTG`
