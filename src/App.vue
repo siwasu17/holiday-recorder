@@ -42,6 +42,7 @@
           v-for="category in categories"
           :key="category.key"
           class="category-button"
+          :style="{ backgroundColor: category.color, borderColor: category.border }"
           @click="selectCategory(category.key)"
         >
           {{ category.label }}
@@ -69,11 +70,15 @@ const activities: ActivityTasksMap = shallowReactive(new Map())
  * 活動カテゴリのリスト (定数)
  */
 const categories = [
-  { key: 'work', label: '仕事' },
-  { key: 'study', label: '勉強' },
-  { key: 'rest', label: '休憩' },
-  { key: 'move', label: '移動' },
-  { key: 'etc', label: 'その他' },
+  { key: 'rest', label: '休息', color: '#BDE0FE', border: '#A2D2FF' }, // 水色
+  { key: 'exercise', label: '運動', color: '#CAFFBF', border: '#99E2B4' }, // 薄緑
+  { key: 'culture', label: '文化', color: '#FFD6A5', border: '#FFC8DD' }, // 薄橙
+  { key: 'dev', label: '開発', color: '#A0C4FF', border: '#9BF6FF' }, // 青
+  { key: 'housework', label: '家事(定)', color: '#FDFFB6', border: '#E9EDC9' }, // 薄黄
+  { key: 'task', label: '家事(単)', color: '#FFADAD', border: '#FF8B94' }, // 薄赤
+  { key: 'plan', label: '検討', color: '#E2E2E2', border: '#CCCCCC' }, // グレー
+  { key: 'event', label: 'イベント', color: '#FFC6FF', border: '#FDBBFF' }, // ピンク
+  { key: 'etc', label: 'その他', color: '#FFFFFC', border: '#D8E2DC' }, // オフホワイト
 ]
 
 /**
@@ -217,8 +222,10 @@ const selectTimeSlot = (timeSlotKey: string) => {
 
 .category-buttons {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-around;
-  padding: 10px;
+  /* padding: 10px; */
+  gap: 8px;
 }
 
 .category-button {
@@ -227,5 +234,7 @@ const selectTimeSlot = (timeSlotKey: string) => {
   background: #f9f9f9;
   cursor: pointer;
   border-radius: 5px;
+  color: #333;
+  font-weight: bold;
 }
 </style>
