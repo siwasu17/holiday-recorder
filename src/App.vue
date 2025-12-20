@@ -57,7 +57,6 @@ import { ref, computed, shallowReactive } from 'vue'
 
 const currentDate = ref(new Date())
 
-// TODO: keyはindex番号の方が扱いやすいと思う
 const currentTimeSlot = ref<string | null>(null)
 
 type ActivityTasksMap = Map<string, string[]>
@@ -77,7 +76,7 @@ const categories = [
   { key: 'housework', label: '家事(定)', color: '#FDFFB6', border: '#E9EDC9' }, // 薄黄
   { key: 'task', label: '家事(単)', color: '#FFADAD', border: '#FF8B94' }, // 薄赤
   { key: 'plan', label: '検討', color: '#E2E2E2', border: '#CCCCCC' }, // グレー
-  { key: 'event', label: 'イベント', color: '#FFC6FF', border: '#FDBBFF' }, // ピンク
+  { key: 'event', label: '行事', color: '#FFC6FF', border: '#FDBBFF' }, // ピンク
   { key: 'etc', label: 'その他', color: '#FFFFFC', border: '#D8E2DC' }, // オフホワイト
 ]
 
@@ -137,15 +136,29 @@ const nextDay = () => {
   changeDay(1)
 }
 
-const selectCategory = (category: string) => {
+const selectCategory = (taskCategory: string) => {
   if (!!currentTimeSlot.value) {
-    const key = currentTimeSlot.value
-    const categories = activities.get(key)
-    if (!!categories) {
-      categories.push(category)
-      activities.set(key, categories)
+    const timeSlot = currentTimeSlot.value
+    let currentActivites = activities.get(timeSlot) ?? []
+
+    // 選択した時間枠にタスクカテゴリを追加
+    if (!!currentActivites) {
+      currentActivites.push(taskCategory)
     } else {
-      activities.set(key, [category])
+      currentActivites = [taskCategory]
+    }
+    activities.set(timeSlot, currentActivites)
+
+    if (currentActivites.length >= 4) {
+      // 4つ埋まったら次の時間に移動する
+      const timeSlotIndex = timeSlots.findIndex((slot) => slot.start === currentTimeSlot.value)
+      if (timeSlotIndex + 1 >= timeSlots.length) {
+        // 一番下まで来ていたら選択解除
+        currentTimeSlot.value = null
+      } else {
+        // 次のスロットに移動
+        currentTimeSlot.value = timeSlots[timeSlotIndex + 1]?.start ?? null
+      }
     }
   }
   console.log([...activities])
