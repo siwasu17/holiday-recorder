@@ -12,12 +12,6 @@
 
     <main class="main-content-scrollable">
       <table class="timetable">
-        <thead>
-          <tr>
-            <th class="time-column-header">時間</th>
-            <th class="activity-column-header">活動内容</th>
-          </tr>
-        </thead>
         <tbody>
           <tr
             v-for="slot in timeSlots"
@@ -27,7 +21,12 @@
           >
             <td class="time-label">{{ slot.label }}</td>
             <td class="activity-cell">
-              <div class="activity-item" v-for="actKey in activities.get(slot.start)" :key="actKey">
+              <div
+                class="activity-item"
+                v-for="actKey in activities.get(slot.start)"
+                :key="actKey"
+                :style="{ backgroundColor: getActColor(actKey) }"
+              >
                 {{ getActLabel(actKey) }}
               </div>
             </td>
@@ -55,7 +54,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, shallowReactive, reactive } from 'vue'
+import { ref, computed, reactive } from 'vue'
 
 const currentDate = ref(new Date())
 
@@ -118,6 +117,9 @@ const getActLabel = (actKey: string) => {
   return categories.find((c) => c.key == actKey)?.label ?? '不明'
 }
 
+const getActColor = (actKey: string) => {
+  return categories.find((c) => c.key == actKey)?.color ?? '#000000'
+}
 /**
  * 日付を指定日数分変更する
  * @param {number} days - 変更する日数 (+1で翌日、-1で前日)
@@ -229,9 +231,7 @@ const selectTimeSlot = (timeSlotKey: string) => {
 }
 
 .time-slot.is-selected {
-  background: #007bff;
-  color: white;
-  border-color: #007bff;
+  background: #bcebd2;
 }
 
 .time-label {
@@ -255,5 +255,35 @@ const selectTimeSlot = (timeSlotKey: string) => {
   border-radius: 5px;
   color: #333;
   font-weight: bold;
+}
+
+.activity-cell {
+  /* セル内の余白を調整（アイテムとの間に少し隙間を作る場合） */
+  padding: 4px;
+}
+
+.activity-item {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 2px 8px; /* 上下を極限まで詰め、左右に少し余裕を持たせる */
+  font-size: 0.85rem; /* 文字を少し小さく */
+  min-height: 24px; /* 最低限の高さだけ確保 */
+  margin-bottom: 2px; /* アイテム間の隙間も最小限に */
+  border-radius: 4px;
+
+  /* --- 文字が溢れた時の処理（1行に収める） --- */
+  white-space: nowrap; /* 折り返し禁止 */
+  overflow: hidden; /* はみ出しを隠す */
+  text-overflow: ellipsis; /* はみ出た分を「...」にする */
+
+  /* border: 1px solid #dcdcdc; */
+}
+/* 最後のアイテムの余白を消す */
+.activity-item:last-child {
+  margin-bottom: 0;
 }
 </style>
