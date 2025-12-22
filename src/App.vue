@@ -2,9 +2,9 @@
   <div id="activity-tracker-app" class="app-container">
     <div class="header-fixed">
       <div class="date-navigation">
-        <button @click="previousDay" class="nav-button">&lt; 前の日</button>
+        <button @click="previousDay" class="nav-button">&lt; Prev</button>
         <h2 class="current-date">{{ formattedDate }}</h2>
-        <button @click="nextDay" class="nav-button">次の日 &gt;</button>
+        <button @click="nextDay" class="nav-button">Next &gt;</button>
       </div>
     </div>
 
@@ -27,7 +27,9 @@
           >
             <td class="time-label">{{ slot.label }}</td>
             <td class="activity-cell">
-              <div class="activity-item"></div>
+              <div class="activity-item" v-for="actKey in activities.get(slot.start)" :key="actKey">
+                {{ getActLabel(actKey) }}
+              </div>
             </td>
           </tr>
         </tbody>
@@ -53,23 +55,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, shallowReactive } from 'vue'
+import { ref, computed, shallowReactive, reactive } from 'vue'
 
 const currentDate = ref(new Date())
 
 const currentTimeSlot = ref<string | null>(null)
 
 type ActivityTasksMap = Map<string, string[]>
-// TODO: key-value
-// slotKey -> [category, category...]
-// Map構造の方が良さそう
-const activities: ActivityTasksMap = shallowReactive(new Map())
+
+// timeSlot -> taskCategories
+const activities: ActivityTasksMap = reactive(new Map())
 
 /**
  * 活動カテゴリのリスト (定数)
  */
 const categories = [
   { key: 'rest', label: '休息', color: '#BDE0FE', border: '#A2D2FF' }, // 水色
+  { key: 'meal', label: '食事', color: '#FFECD1', border: '#FFD7BA' }, // 淡いオレンジベージュ
   { key: 'exercise', label: '運動', color: '#CAFFBF', border: '#99E2B4' }, // 薄緑
   { key: 'culture', label: '文化', color: '#FFD6A5', border: '#FFC8DD' }, // 薄橙
   { key: 'dev', label: '開発', color: '#A0C4FF', border: '#9BF6FF' }, // 青
@@ -111,6 +113,10 @@ const formattedDate = computed(() => {
 })
 
 // --- Methods (関数) ---
+
+const getActLabel = (actKey: string) => {
+  return categories.find((c) => c.key == actKey)?.label ?? '不明'
+}
 
 /**
  * 日付を指定日数分変更する
@@ -237,7 +243,7 @@ const selectTimeSlot = (timeSlotKey: string) => {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-around;
-  /* padding: 10px; */
+  padding: 10px;
   gap: 8px;
 }
 
