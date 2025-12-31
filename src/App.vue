@@ -40,6 +40,10 @@
     <hr />
 
     <div class="footer-fixed">
+      <div class="history-controls-inline">
+        <button @click="undo" :disabled="!canUndo" class="history-mini-button">↩ Undo</button>
+        <button @click="redo" :disabled="!canRedo" class="history-mini-button">Redo ↪</button>
+      </div>
       <div class="category-buttons">
         <button
           v-for="category in categories"
@@ -223,8 +227,8 @@ const selectTimeSlot = (timeSlotKey: string) => {
   flex-grow: 1;
   overflow-y: auto;
   /* ヘッダーとフッターの高さに応じて調整 */
-  padding-top: 100px;
-  padding-bottom: 80px;
+  padding-top: 70px;
+  padding-bottom: 180px;
 }
 
 .timetable {
@@ -304,5 +308,34 @@ const selectTimeSlot = (timeSlotKey: string) => {
   border-radius: 5px;
   color: #333;
   font-weight: bold;
+}
+
+.history-controls-inline {
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  margin-bottom: 4px; /* カテゴリーボタンとの間隔 */
+}
+
+.history-mini-button {
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 15px;
+  padding: 2px 12px;
+  font-size: 0.8rem;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.history-mini-button:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+}
+
+.history-mini-button:not(:disabled):hover {
+  background-color: #f9f9f9;
+  border-color: #bbb;
 }
 </style>
