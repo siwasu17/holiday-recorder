@@ -70,11 +70,11 @@ const MAX_ACTIVITIES_PER_SLOT = 4
 
 type ActivityTasksMap = Map<string, string[]>
 
-// timeSlot -> taskCategories
+// timeSlot -> taskCategories のMap
 const activities: ActivityTasksMap = reactive(new Map())
-const actHistories: ActivityTasksMap[] = shallowReactive([])
-const actHistoriesIndex = null
-
+// 履歴の初期状態として空マップをいれておく
+const actHistories = shallowReactive<ActivityTasksMap[]>([new Map()])
+const actHistoriesIndex = ref(0)
 /**
  * 活動カテゴリのリスト (定数)
  */
@@ -157,31 +157,35 @@ const nextDay = () => {
   changeDay(1)
 }
 
-const undoAct = () => {}
-
-const redoAct = () => {}
-
 const selectCategory = (taskCategory: string) => {
   if (!currentTimeSlot.value) return
 
   const timeSlot = currentTimeSlot.value
-  const currentActivities = activities.get(timeSlot) ?? []
+  // 選択された時間スロットに入っているアクティビティの配列
+  // reactiveな値からスプレッド演算子 [...配列] を使って、新しい配列（コピー）を作る
+  const currentActivitiesInSlot = [...(activities.value.get(timeSlot) ?? [])]
 
   // 選択した時間枠にタスクカテゴリを追加
-  if (currentActivities.length < MAX_ACTIVITIES_PER_SLOT) {
-    currentActivities.push(taskCategory)
-    activities.set(timeSlot, currentActivities)
+  if (currentActivitiesInSlot.length < MAX_ACTIVITIES_PER_SLOT) {
+    currentActivitiesInSlot.push(taskCategory)
+    activities.set(timeSlot, currentActivitiesInSlot)
+
+    // Undo/Redoのための履歴保存
+    actHistoriesIndex.value++
+    const snapshot = new Map()
+    activities.forEach((value, key) => {
+      snapshot.set(key, [...value])
+    })
+    actHistories[actHistoriesIndex.value] = snapshot
   }
 
-  activities.set(timeSlot, currentActivities)
-
   // 4つ埋まったら次の時間に移動する
-  if (currentActivities.length >= MAX_ACTIVITIES_PER_SLOT) {
+  if (currentActivitiesInSlot.length >= MAX_ACTIVITIES_PER_SLOT) {
     moveToNextSlot()
   }
 
   console.log([...activities])
-  console.log(`Index: ${actHistoriesIndex}`)
+  console.log(`Index: ${actHistoriesIndex.value}`)
   console.log([...actHistories])
 }
 
@@ -199,6 +203,21 @@ const moveToNextSlot = () => {
     currentTimeSlot.value = timeSlots[nextIndex]?.start ?? null
   }
 }
+
+const undoAct = () => {
+  if (actHistoriesIndex.value <= 0) return
+  actHistoriesIndex.value--
+  const previousState = actHistories[actHistoriesIndex.value]
+  // 状態復元
+  if (!!previousState) {
+    activities.clear()
+    previousState.forEach((val, key) => {
+      activities.set(key, [...val])
+    })
+  }
+}
+
+const redoAct = () => {}
 
 const selectTimeSlot = (timeSlotKey: string) => {
   currentTimeSlot.value = timeSlotKey
