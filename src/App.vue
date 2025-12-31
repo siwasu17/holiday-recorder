@@ -11,28 +11,30 @@
     <hr />
 
     <main class="main-content-scrollable">
-      <table class="timetable">
-        <tbody>
-          <tr
-            v-for="slot in timeSlots"
-            :key="slot.start"
-            @click="selectTimeSlot(slot.start)"
-            :class="['time-slot', { 'is-selected': currentTimeSlot === slot.start }]"
-          >
-            <td class="time-label">{{ slot.label }}</td>
-            <td class="activity-cell">
-              <div
-                class="activity-item"
-                v-for="actKey in activities.get(slot.start)"
-                :key="actKey"
-                :style="{ backgroundColor: getActColor(actKey) }"
-              >
-                {{ getActLabel(actKey) }}
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="timetable" role="table">
+        <div
+          v-for="slot in timeSlots"
+          :key="slot.start"
+          @click="selectTimeSlot(slot.start)"
+          :class="['time-row', { 'is-selected': currentTimeSlot === slot.start }]"
+          role="row"
+        >
+          <div class="time-label" role="cell">
+            {{ slot.label }}
+          </div>
+
+          <div class="activity-cell" role="cell">
+            <div
+              class="activity-item"
+              v-for="actKey in activities.get(slot.start)"
+              :key="actKey"
+              :style="{ backgroundColor: getActColor(actKey) }"
+            >
+              {{ getActLabel(actKey) }}
+            </div>
+          </div>
+        </div>
+      </div>
     </main>
 
     <hr />
@@ -205,6 +207,13 @@ const selectTimeSlot = (timeSlotKey: string) => {
   bottom: 0;
 }
 
+.date-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 10px;
+}
+
 .main-content-scrollable {
   flex-grow: 1;
   overflow-y: auto;
@@ -213,48 +222,37 @@ const selectTimeSlot = (timeSlotKey: string) => {
   padding-bottom: 80px;
 }
 
-.date-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-}
-
 .timetable {
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  border-collapse: collapse;
+  border-top: 1px solid #ddd;
 }
 
-.time-slot {
-  height: 80px; /* スロットの視覚的な高さを確保 */
-  border-bottom: 1px solid #eee;
+.time-row {
+  display: grid;
+  /* 左側のラベルを80px固定、右側を可変にする例 */
+  grid-template-columns: 80px 1fr;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  transition: background-color 0.2s;
 }
 
-.time-slot.is-selected {
-  background: #bcebd2;
+.time-row:hover {
+  background-color: #f9f9f9;
+}
+
+.time-row.is-selected {
+  background-color: #e3f2fd;
 }
 
 .time-label {
-  width: 25%;
-  text-align: center;
-}
-
-.category-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
   padding: 10px;
-  gap: 8px;
-}
-
-.category-button {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  background: #f9f9f9;
-  cursor: pointer;
-  border-radius: 5px;
-  color: #333;
   font-weight: bold;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .activity-cell {
@@ -279,11 +277,27 @@ const selectTimeSlot = (timeSlotKey: string) => {
   white-space: nowrap; /* 折り返し禁止 */
   overflow: hidden; /* はみ出しを隠す */
   text-overflow: ellipsis; /* はみ出た分を「...」にする */
-
-  /* border: 1px solid #dcdcdc; */
 }
 /* 最後のアイテムの余白を消す */
 .activity-item:last-child {
   margin-bottom: 0;
+}
+
+.category-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  padding: 10px;
+  gap: 8px;
+}
+
+.category-button {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  background: #f9f9f9;
+  cursor: pointer;
+  border-radius: 5px;
+  color: #333;
+  font-weight: bold;
 }
 </style>
