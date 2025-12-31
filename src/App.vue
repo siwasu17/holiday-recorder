@@ -123,11 +123,13 @@ const formattedDate = computed(() => {
 })
 
 const canUndo = computed(() => {
-  return true
+  return actHistoriesIndex.value > 0
 })
 
 const canRedo = computed(() => {
-  return true
+  // 指している位置が最新よりも前ならRedo可能
+  // 例: index:0, 要素数(length):2
+  return actHistoriesIndex.value + 1 < actHistories.length
 })
 
 // --- Methods (関数) ---
@@ -163,7 +165,7 @@ const selectCategory = (taskCategory: string) => {
   const timeSlot = currentTimeSlot.value
   // 選択された時間スロットに入っているアクティビティの配列
   // reactiveな値からスプレッド演算子 [...配列] を使って、新しい配列（コピー）を作る
-  const currentActivitiesInSlot = [...(activities.value.get(timeSlot) ?? [])]
+  const currentActivitiesInSlot = [...(activities.get(timeSlot) ?? [])]
 
   // 選択した時間枠にタスクカテゴリを追加
   if (currentActivitiesInSlot.length < MAX_ACTIVITIES_PER_SLOT) {
@@ -177,6 +179,8 @@ const selectCategory = (taskCategory: string) => {
       snapshot.set(key, [...value])
     })
     actHistories[actHistoriesIndex.value] = snapshot
+    // 新しい要素を追加した場合は、Redoできないように履歴の長さを切り詰める
+    actHistories.length = actHistoriesIndex.value + 1
   }
 
   // 4つ埋まったら次の時間に移動する
@@ -205,19 +209,31 @@ const moveToNextSlot = () => {
 }
 
 const undoAct = () => {
-  if (actHistoriesIndex.value <= 0) return
+  if (!canUndo.value) return
   actHistoriesIndex.value--
-  const previousState = actHistories[actHistoriesIndex.value]
+  restoreState()
+}
+
+const redoAct = () => {
+  if (!canRedo.value) return
+
+  actHistoriesIndex.value++
+  restoreState()
+}
+
+/**
+ * actHistoriesIndexで示す状態にactivitiesを復元する
+ */
+const restoreState = () => {
+  const targetState = actHistories[actHistoriesIndex.value]
   // 状態復元
-  if (!!previousState) {
+  if (!!targetState) {
     activities.clear()
-    previousState.forEach((val, key) => {
+    targetState.forEach((val, key) => {
       activities.set(key, [...val])
     })
   }
 }
-
-const redoAct = () => {}
 
 const selectTimeSlot = (timeSlotKey: string) => {
   currentTimeSlot.value = timeSlotKey
