@@ -71,16 +71,17 @@ const activities: ActivityTasksMap = reactive(new Map())
  * 活動カテゴリのリスト (定数)
  */
 const categories = [
-  { key: 'rest', label: '休息', color: '#BDE0FE', border: '#A2D2FF' }, // 水色
-  { key: 'meal', label: '食事', color: '#FFECD1', border: '#FFD7BA' }, // 淡いオレンジベージュ
-  { key: 'exercise', label: '運動', color: '#CAFFBF', border: '#99E2B4' }, // 薄緑
-  { key: 'culture', label: '文化', color: '#FFD6A5', border: '#FFC8DD' }, // 薄橙
-  { key: 'dev', label: '開発', color: '#A0C4FF', border: '#9BF6FF' }, // 青
-  { key: 'housework', label: '家事(定)', color: '#FDFFB6', border: '#E9EDC9' }, // 薄黄
-  { key: 'task', label: '家事(単)', color: '#FFADAD', border: '#FF8B94' }, // 薄赤
-  { key: 'plan', label: '検討', color: '#E2E2E2', border: '#CCCCCC' }, // グレー
-  { key: 'event', label: '行事', color: '#FFC6FF', border: '#FDBBFF' }, // ピンク
-  { key: 'etc', label: 'その他', color: '#FFFFFC', border: '#D8E2DC' }, // オフホワイト
+  { key: 'rest', label: '休息', color: '#BDE0FE', border: '#A2D2FF' }, // ベビーブルー（明るい水色）
+  { key: 'meal', label: '食事', color: '#FFECD1', border: '#FFD7BA' }, // アプリコットベージュ（淡いオレンジ）
+  { key: 'exercise', label: '運動', color: '#CAFFBF', border: '#99E2B4' }, // ミントグリーン（薄緑）
+  { key: 'culture', label: '文化', color: '#FFD6A5', border: '#FFC8DD' }, // ライトサーモン（薄い橙）
+  { key: 'plan', label: '検討', color: '#E2E2E2', border: '#CCCCCC' }, // ライトグレー（灰色）
+  { key: 'dev_in', label: '開発(In)', color: '#A0C4FF', border: '#9BF6FF' }, // スカイブルー（澄んだ青）
+  { key: 'dev_out', label: '開発(Out)', color: '#4A90E2', border: '#357ABD' }, // ロイヤルブルー（濃いめの青）
+  { key: 'housework', label: '家事(定)', color: '#FDFFB6', border: '#E9EDC9' }, // パステルイエロー（薄黄）
+  { key: 'task', label: '家事(単)', color: '#FFADAD', border: '#FF8B94' }, // ライトコーラル（薄赤）
+  { key: 'event', label: '行事', color: '#FFC6FF', border: '#FDBBFF' }, // ラベンダーピンク（桃色）
+  { key: 'etc', label: 'その他', color: '#FFFFFC', border: '#D8E2DC' }, // アイボリーホワイト（オフホワイト）
 ]
 
 /**
