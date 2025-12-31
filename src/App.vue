@@ -62,6 +62,8 @@ const currentDate = ref(new Date())
 
 const currentTimeSlot = ref<string | null>(null)
 
+const MAX_ACTIVITIES_PER_SLOT = 4
+
 type ActivityTasksMap = Map<string, string[]>
 
 // timeSlot -> taskCategories
@@ -154,13 +156,15 @@ const selectCategory = (taskCategory: string) => {
 
     // 選択した時間枠にタスクカテゴリを追加
     if (!!currentActivites) {
-      currentActivites.push(taskCategory)
+      if (currentActivites.length < MAX_ACTIVITIES_PER_SLOT) {
+        currentActivites.push(taskCategory)
+      }
     } else {
       currentActivites = [taskCategory]
     }
     activities.set(timeSlot, currentActivites)
 
-    if (currentActivites.length >= 4) {
+    if (currentActivites.length >= MAX_ACTIVITIES_PER_SLOT) {
       // 4つ埋まったら次の時間に移動する
       const timeSlotIndex = timeSlots.findIndex((slot) => slot.start === currentTimeSlot.value)
       if (timeSlotIndex + 1 >= timeSlots.length) {
