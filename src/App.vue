@@ -41,8 +41,8 @@
 
     <div class="footer-fixed">
       <div class="history-controls-inline">
-        <button @click="undo" :disabled="!canUndo" class="history-mini-button">↩ Undo</button>
-        <button @click="redo" :disabled="!canRedo" class="history-mini-button">Redo ↪</button>
+        <button @click="undoAct" :disabled="!canUndo" class="history-mini-button">↩ Undo</button>
+        <button @click="redoAct" :disabled="!canRedo" class="history-mini-button">Redo ↪</button>
       </div>
       <div class="category-buttons">
         <button
@@ -60,7 +60,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, shallowReactive } from 'vue'
 
 const currentDate = ref(new Date())
 
@@ -72,6 +72,8 @@ type ActivityTasksMap = Map<string, string[]>
 
 // timeSlot -> taskCategories
 const activities: ActivityTasksMap = reactive(new Map())
+const actHistories: ActivityTasksMap[] = shallowReactive([])
+const actHistoriesIndex = null
 
 /**
  * 活動カテゴリのリスト (定数)
@@ -120,6 +122,14 @@ const formattedDate = computed(() => {
   })
 })
 
+const canUndo = computed(() => {
+  return true
+})
+
+const canRedo = computed(() => {
+  return true
+})
+
 // --- Methods (関数) ---
 
 const getActLabel = (actKey: string) => {
@@ -139,48 +149,55 @@ const changeDay = (days: number) => {
   currentDate.value = newDate
 }
 
-/**
- * 「前の日」ボタンの処理
- */
 const previousDay = () => {
   changeDay(-1)
 }
 
-/**
- * 「次の日」ボタンの処理
- */
 const nextDay = () => {
   changeDay(1)
 }
 
+const undoAct = () => {}
+
+const redoAct = () => {}
+
 const selectCategory = (taskCategory: string) => {
-  if (!!currentTimeSlot.value) {
-    const timeSlot = currentTimeSlot.value
-    let currentActivites = activities.get(timeSlot) ?? []
+  if (!currentTimeSlot.value) return
 
-    // 選択した時間枠にタスクカテゴリを追加
-    if (!!currentActivites) {
-      if (currentActivites.length < MAX_ACTIVITIES_PER_SLOT) {
-        currentActivites.push(taskCategory)
-      }
-    } else {
-      currentActivites = [taskCategory]
-    }
-    activities.set(timeSlot, currentActivites)
+  const timeSlot = currentTimeSlot.value
+  const currentActivities = activities.get(timeSlot) ?? []
 
-    if (currentActivites.length >= MAX_ACTIVITIES_PER_SLOT) {
-      // 4つ埋まったら次の時間に移動する
-      const timeSlotIndex = timeSlots.findIndex((slot) => slot.start === currentTimeSlot.value)
-      if (timeSlotIndex + 1 >= timeSlots.length) {
-        // 一番下まで来ていたら選択解除
-        currentTimeSlot.value = null
-      } else {
-        // 次のスロットに移動
-        currentTimeSlot.value = timeSlots[timeSlotIndex + 1]?.start ?? null
-      }
-    }
+  // 選択した時間枠にタスクカテゴリを追加
+  if (currentActivities.length < MAX_ACTIVITIES_PER_SLOT) {
+    currentActivities.push(taskCategory)
+    activities.set(timeSlot, currentActivities)
   }
+
+  activities.set(timeSlot, currentActivities)
+
+  // 4つ埋まったら次の時間に移動する
+  if (currentActivities.length >= MAX_ACTIVITIES_PER_SLOT) {
+    moveToNextSlot()
+  }
+
   console.log([...activities])
+  console.log(`Index: ${actHistoriesIndex}`)
+  console.log([...actHistories])
+}
+
+/**
+ * 次の時間枠へ選択を移動、または選択解除する（内部用）
+ */
+const moveToNextSlot = () => {
+  const currentIndex = timeSlots.findIndex((slot) => slot.start === currentTimeSlot.value)
+  const nextIndex = currentIndex + 1
+
+  // 次の枠がない（末尾）場合は解除、あれば移動
+  if (nextIndex >= timeSlots.length) {
+    currentTimeSlot.value = null
+  } else {
+    currentTimeSlot.value = timeSlots[nextIndex]?.start ?? null
+  }
 }
 
 const selectTimeSlot = (timeSlotKey: string) => {
