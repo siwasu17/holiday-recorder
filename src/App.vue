@@ -26,12 +26,42 @@
           <div class="activity-cell" role="cell">
             <div
               class="activity-item"
-              v-for="actKey in activities.get(slot.start)"
-              :key="actKey"
+              v-for="(actKey, index) in activities.get(slot.start)"
+              :key="index"
               :style="{ backgroundColor: getActColor(actKey) }"
+              @click.stop="openEditModal(slot.start, index)"
             >
               {{ getActLabel(actKey) }}
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
+        <div class="modal-content">
+          <h3>{{ editingActLabel }}</h3>
+          <p class="slot-info">{{ editingSlotLabel }} の {{ editingIndex + 1 }}つ目</p>
+
+          <div class="edit-actions">
+            <p>別のカテゴリに変更：</p>
+            <div class="category-grid">
+              <button
+                v-for="category in categories"
+                :key="category.key"
+                class="mini-category-button"
+                :style="{ backgroundColor: category.color }"
+                @click="updateActivity(category.key)"
+              >
+                {{ category.label }}
+              </button>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="modal-footer">
+            <button @click="deleteActivity" class="danger-button">この活動を削除</button>
+            <button @click="closeModal" class="cancel-button">キャンセル</button>
           </div>
         </div>
       </div>
@@ -49,7 +79,7 @@
           v-for="category in categories"
           :key="category.key"
           class="category-button"
-          :style="{ backgroundColor: category.color, borderColor: category.border }"
+          :style="{ backgroundColor: category.color }"
           @click="selectCategory(category.key)"
         >
           {{ category.label }}
@@ -70,26 +100,31 @@ const MAX_ACTIVITIES_PER_SLOT = 4
 
 type ActivityTasksMap = Map<string, string[]>
 
-// timeSlot -> taskCategories のMap
+// timeSlot(string) -> taskCategories(string[]) のMap
 const activities: ActivityTasksMap = reactive(new Map())
 // 履歴の初期状態として空マップをいれておく
 const actHistories = shallowReactive<ActivityTasksMap[]>([new Map()])
 const actHistoriesIndex = ref(0)
+
+const isModalOpen = ref(false)
+const editingSlot = ref<string | null>(null)
+const editingIndex = ref<number | -1>(-1)
+
 /**
  * 活動カテゴリのリスト (定数)
  */
 const categories = [
-  { key: 'rest', label: '休息', color: '#BDE0FE', border: '#A2D2FF' }, // ベビーブルー（明るい水色）
-  { key: 'meal', label: '食事', color: '#FFECD1', border: '#FFD7BA' }, // アプリコットベージュ（淡いオレンジ）
-  { key: 'exercise', label: '運動', color: '#CAFFBF', border: '#99E2B4' }, // ミントグリーン（薄緑）
-  { key: 'culture', label: '文化', color: '#FFD6A5', border: '#FFC8DD' }, // ライトサーモン（薄い橙）
-  { key: 'plan', label: '検討', color: '#E2E2E2', border: '#CCCCCC' }, // ライトグレー（灰色）
-  { key: 'dev_in', label: '開発(In)', color: '#A0C4FF', border: '#9BF6FF' }, // スカイブルー（澄んだ青）
-  { key: 'dev_out', label: '開発(Out)', color: '#4A90E2', border: '#357ABD' }, // ロイヤルブルー（濃いめの青）
-  { key: 'housework', label: '家事(定)', color: '#FDFFB6', border: '#E9EDC9' }, // パステルイエロー（薄黄）
-  { key: 'task', label: '家事(単)', color: '#FFADAD', border: '#FF8B94' }, // ライトコーラル（薄赤）
-  { key: 'event', label: '行事', color: '#FFC6FF', border: '#FDBBFF' }, // ラベンダーピンク（桃色）
-  { key: 'etc', label: 'その他', color: '#FFFFFC', border: '#D8E2DC' }, // アイボリーホワイト（オフホワイト）
+  { key: 'rest', label: '休息', color: '#BDE0FE' }, // ベビーブルー（明るい水色）
+  { key: 'meal', label: '食事', color: '#FFECD1' }, // アプリコットベージュ（淡いオレンジ）
+  { key: 'exercise', label: '運動', color: '#CAFFBF' }, // ミントグリーン（薄緑）
+  { key: 'culture', label: '文化', color: '#FFD6A5' }, // ライトサーモン（薄い橙）
+  { key: 'plan', label: '検討', color: '#E2E2E2' }, // ライトグレー（灰色）
+  { key: 'dev_in', label: '開発(In)', color: '#A0C4FF' }, // スカイブルー（澄んだ青）
+  { key: 'dev_out', label: '開発(Out)', color: '#4A90E2' }, // ロイヤルブルー（濃いめの青）
+  { key: 'housework', label: '家事(定)', color: '#FDFFB6' }, // パステルイエロー（薄黄）
+  { key: 'task', label: '家事(単)', color: '#FFADAD' }, // ライトコーラル（薄赤）
+  { key: 'event', label: '行事', color: '#FFC6FF' }, // ラベンダーピンク（桃色）
+  { key: 'etc', label: 'その他', color: '#D8E2DC' }, // アイボリーホワイト（オフホワイト）
 ]
 
 /**
@@ -130,6 +165,16 @@ const canRedo = computed(() => {
   // 指している位置が最新よりも前ならRedo可能
   // 例: index:0, 要素数(length):2
   return actHistoriesIndex.value + 1 < actHistories.length
+})
+
+const editingSlotLabel = computed(() => {
+  return timeSlots.find((s) => s.start === editingSlot.value)?.label ?? ''
+})
+
+const editingActLabel = computed(() => {
+  const actKey = activities.get(editingSlot.value ?? '')?.[editingIndex.value]
+
+  return categories.find((c) => c.key === actKey)?.label
 })
 
 // --- Methods (関数) ---
@@ -173,14 +218,7 @@ const selectCategory = (taskCategory: string) => {
     activities.set(timeSlot, currentActivitiesInSlot)
 
     // Undo/Redoのための履歴保存
-    actHistoriesIndex.value++
-    const snapshot = new Map()
-    activities.forEach((value, key) => {
-      snapshot.set(key, [...value])
-    })
-    actHistories[actHistoriesIndex.value] = snapshot
-    // 新しい要素を追加した場合は、Redoできないように履歴の長さを切り詰める
-    actHistories.length = actHistoriesIndex.value + 1
+    saveHistory()
   }
 
   // 4つ埋まったら次の時間に移動する
@@ -191,6 +229,21 @@ const selectCategory = (taskCategory: string) => {
   console.log([...activities])
   console.log(`Index: ${actHistoriesIndex.value}`)
   console.log([...actHistories])
+}
+
+/**
+ * 履歴保存
+ */
+const saveHistory = () => {
+  // Undo/Redoのための履歴保存
+  actHistoriesIndex.value++
+  const snapshot = new Map()
+  activities.forEach((value, key) => {
+    snapshot.set(key, [...value])
+  })
+  actHistories[actHistoriesIndex.value] = snapshot
+  // 新しい要素を追加した場合は、Redoできないように履歴の長さを切り詰める
+  actHistories.length = actHistoriesIndex.value + 1
 }
 
 /**
@@ -237,6 +290,41 @@ const restoreState = () => {
 
 const selectTimeSlot = (timeSlotKey: string) => {
   currentTimeSlot.value = timeSlotKey
+}
+
+const openEditModal = (slotStart: string, index: number) => {
+  editingSlot.value = slotStart
+  editingIndex.value = index
+  isModalOpen.value = true
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+  editingSlot.value = null
+  editingIndex.value = -1
+}
+
+const updateActivity = (newActKey: string) => {
+  if (!editingSlot.value || editingIndex.value === -1) return
+
+  const currentList = [...(activities.get(editingSlot.value) ?? [])]
+  currentList[editingIndex.value] = newActKey
+
+  activities.set(editingSlot.value, currentList)
+  saveHistory()
+  closeModal()
+}
+
+const deleteActivity = () => {
+  if (!editingSlot.value || editingIndex.value === -1) return
+
+  const currentList = [...(activities.get(editingSlot.value) ?? [])]
+  // 対象要素を削除
+  currentList.splice(editingIndex.value, 1)
+
+  activities.set(editingSlot.value, currentList)
+  saveHistory()
+  closeModal()
 }
 </script>
 
@@ -354,7 +442,7 @@ const selectTimeSlot = (timeSlotKey: string) => {
 
 .category-button {
   padding: 8px 12px;
-  border: 1px solid #ccc;
+  border: none;
   background: #f9f9f9;
   cursor: pointer;
   border-radius: 5px;
@@ -389,5 +477,72 @@ const selectTimeSlot = (timeSlotKey: string) => {
 .history-mini-button:not(:disabled):hover {
   background-color: #f9f9f9;
   border-color: #bbb;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.mini-category-button {
+  padding: 8px 4px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.modal-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.danger-button {
+  background-color: #ff4d4f;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.slot-info {
+  color: #666;
+  font-size: 0.9rem;
 }
 </style>
