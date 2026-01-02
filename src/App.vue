@@ -3,7 +3,7 @@
     <div class="header">
       <div class="date-navigation">
         <button @click="previousDay" class="nav-button">&lt; Prev</button>
-        <h2 class="current-date">{{ formattedDate }}</h2>
+        <div class="current-date">{{ formattedDate }}</div>
         <button @click="nextDay" class="nav-button">Next &gt;</button>
       </div>
     </div>
@@ -415,13 +415,6 @@ const resetHistoryAfterLoad = () => {
   z-index: 10;
 }
 
-.date-navigation {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 10px;
-}
-
 .main-content-scrollable {
   flex-grow: 1; /* ヘッダーとフッター以外の残りの高さをすべて使う */
   overflow-y: auto; /* 内容が溢れたらここだけスクロールさせる */
@@ -582,5 +575,34 @@ const resetHistoryAfterLoad = () => {
 .slot-info {
   color: #666;
   font-size: 0.9rem;
+}
+
+.date-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 10px;
+}
+
+.nav-button {
+  background-color: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+}
+
+.current-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
 }
 </style>
