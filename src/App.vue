@@ -90,7 +90,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive, shallowReactive } from 'vue'
+import { ref, computed, reactive, shallowReactive, onMounted } from 'vue'
 
 const currentDate = ref(new Date())
 
@@ -143,6 +143,11 @@ const timeSlots = [
   { start: '00:00+', label: '24:00 - 26:00' }, // 翌日の0:00-2:00に相当
 ]
 
+// 起動時にlocalStorageから状態復元
+onMounted(() => {
+  loadFromLocalStorage()
+})
+
 // --- Computed Properties (算出プロパティ) ---
 
 /**
@@ -194,6 +199,9 @@ const changeDay = (days: number) => {
   const newDate = new Date(currentDate.value)
   newDate.setDate(newDate.getDate() + days)
   currentDate.value = newDate
+
+  // 日付が変わったら新しい日付のデータをロード
+  loadFromLocalStorage()
 }
 
 const previousDay = () => {
@@ -244,6 +252,9 @@ const saveHistory = () => {
   actHistories[actHistoriesIndex.value] = snapshot
   // 新しい要素を追加した場合は、Redoできないように履歴の長さを切り詰める
   actHistories.length = actHistoriesIndex.value + 1
+
+  // localStorageに状態保存
+  saveToLocalStorage()
 }
 
 /**
@@ -285,6 +296,9 @@ const restoreState = () => {
     targetState.forEach((val, key) => {
       activities.set(key, [...val])
     })
+
+    // 状態が変わったのでlocalStorageに保存し直す
+    saveToLocalStorage()
   }
 }
 
@@ -326,10 +340,49 @@ const deleteActivity = () => {
   saveHistory()
   closeModal()
 }
+
+/**
+ * LocalStorageへの保存・復元関連
+ */
+const getDateKey = (date: Date) => {
+  return date.toISOString().split('T')[0]
+}
+
+const saveToLocalStorage = () => {
+  const key = `activities-${getDateKey(currentDate.value)}`
+  // Map を Object に変換して保存
+  const dataObj = Object.fromEntries(activities)
+  localStorage.setItem(key, JSON.stringify(dataObj))
+}
+
+const loadFromLocalStorage = () => {
+  const key = `activities-${getDateKey(currentDate.value)}`
+  const saved = localStorage.getItem(key)
+
+  activities.clear()
+  if (saved) {
+    const dataObj = JSON.parse(saved)
+    // Object を Map に戻す
+    // Object.entries(dataObj) は [['08:00', [...]], ...] を返す
+    const entries = Object.entries(dataObj) as [string, string[]][]
+    for (const [slot, tasks] of entries) {
+      activities.set(slot, tasks)
+    }
+    // 復元した情報を最初の履歴として登録する
+    resetHistoryAfterLoad()
+  }
+}
+
+const resetHistoryAfterLoad = () => {
+  actHistories.length = 0
+  const snapshot = new Map()
+  activities.forEach((v, k) => snapshot.set(k, [...v]))
+  actHistories.push(snapshot)
+  actHistoriesIndex.value = 0
+}
 </script>
 
 <style scoped>
-/* スタイルは先に提示したものと同じ考え方で実装されます */
 .app-container {
   display: flex;
   flex-direction: column;
@@ -343,7 +396,7 @@ const deleteActivity = () => {
   left: 0;
   right: 0;
   z-index: 10;
-  background: #fff; /* 背景色を設定してメインコンテンツに重ならないようにする */
+  background: #fff;
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -405,7 +458,6 @@ const deleteActivity = () => {
 }
 
 .activity-cell {
-  /* セル内の余白を調整（アイテムとの間に少し隙間を作る場合） */
   padding: 4px;
 }
 
