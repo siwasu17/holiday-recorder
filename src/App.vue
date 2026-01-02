@@ -114,17 +114,17 @@ const editingIndex = ref<number | -1>(-1)
  * 活動カテゴリのリスト (定数)
  */
 const categories = [
-  { key: 'rest', label: '休息', color: '#BDE0FE' }, // ベビーブルー（明るい水色）
-  { key: 'meal', label: '食事', color: '#FFECD1' }, // アプリコットベージュ（淡いオレンジ）
-  { key: 'exercise', label: '運動', color: '#CAFFBF' }, // ミントグリーン（薄緑）
-  { key: 'culture', label: '文化', color: '#FFD6A5' }, // ライトサーモン（薄い橙）
-  { key: 'plan', label: '検討', color: '#E2E2E2' }, // ライトグレー（灰色）
-  { key: 'dev_in', label: '開発(In)', color: '#A0C4FF' }, // スカイブルー（澄んだ青）
-  { key: 'dev_out', label: '開発(Out)', color: '#4A90E2' }, // ロイヤルブルー（濃いめの青）
-  { key: 'housework', label: '家事(定)', color: '#FDFFB6' }, // パステルイエロー（薄黄）
-  { key: 'task', label: '家事(単)', color: '#FFADAD' }, // ライトコーラル（薄赤）
-  { key: 'event', label: '行事', color: '#FFC6FF' }, // ラベンダーピンク（桃色）
-  { key: 'etc', label: 'その他', color: '#D8E2DC' }, // アイボリーホワイト（オフホワイト）
+  { key: 'meal', label: '食事', color: '#FFE5D9' }, // シェルピンク
+  { key: 'rest', label: '休息', color: '#D6EFFF' }, // スカイミスト
+  { key: 'exercise', label: '運動', color: '#E2F0CB' }, // ペールライム
+  { key: 'plan', label: '検討', color: '#E8DFF5' }, // ラベンダーミスト（明るい紫）
+  { key: 'dev_in', label: '開発(In)', color: '#B9F2FF' }, // パステルアクア（澄んだ明るい水色）
+  { key: 'dev_out', label: '開発(Out)', color: '#89CFF0' }, // ベビーブルー（透明感のある青）
+  { key: 'culture', label: '文化', color: '#FCE1E4' }, // ベビーピンク
+  { key: 'event', label: '行事', color: '#F3C4FB' }, // ライトバイオレット
+  { key: 'housework', label: '家事(定)', color: '#FFF9C4' }, // ライトレモンイエロー
+  { key: 'task', label: '家事(単)', color: '#FFD3D3' }, // パステルレッド
+  { key: 'etc', label: 'その他', color: '#F0F4EF' }, // ホワイトミント
 ]
 
 /**
@@ -388,14 +388,13 @@ const resetHistoryAfterLoad = () => {
 
 <style>
 :root {
-  --bg-color: #fcfaf2; /* 柔らかなアイボリー */
-  --surface-color: #f8f7f2; /* ヘッダー等 */
-  --text-main: #33322f; /* 墨色に近いグレー */
-  --text-sub: #6b6a65; /* 補足用 */
-  --border-color: #e0ddd5; /* 境界線 */
-  --accent-soft: #dce4e8; /* 選択時の色（淡いブルーグレー） */
+  --bg-color: #fcfaf2;
+  --surface-color: #fdfcf8;
+  --text-main: #4a4945;
+  --text-sub: #8c8b85;
+  --border-color: #e8e6df;
+  --accent-soft: #f0f3f5;
 }
-
 .app-container {
   display: flex;
   flex-direction: column;
