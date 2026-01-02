@@ -405,13 +405,21 @@ const resetHistoryAfterLoad = () => {
   background-color: var(--bg-color);
 }
 
-.header,
+.header {
+  /* flexbox内が併存する要素であふれてもこれは縮めない */
+  flex-shrink: 0;
+  background: var(--surface-color);
+  padding-top: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 10;
+}
+
 .footer {
   /* flexbox内が併存する要素であふれてもこれは縮めない */
   flex-shrink: 0;
   background: var(--surface-color);
   padding: 10px 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
 
