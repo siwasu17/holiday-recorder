@@ -386,38 +386,33 @@ const resetHistoryAfterLoad = () => {
 }
 </script>
 
-<style scoped>
+<style>
+:root {
+  --bg-color: #fcfaf2; /* 柔らかなアイボリー */
+  --surface-color: #f8f7f2; /* ヘッダー等 */
+  --text-main: #33322f; /* 墨色に近いグレー */
+  --text-sub: #6b6a65; /* 補足用 */
+  --border-color: #e0ddd5; /* 境界線 */
+  --accent-soft: #dce4e8; /* 選択時の色（淡いブルーグレー） */
+}
+
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  color: var(--text-main);
+  background-color: var(--bg-color);
 }
 
-.header {
-  /* flexbox内が併存する要素であふれてもこれは縮めない */
-  flex-shrink: 0;
-  background: #fff;
-  padding: 10px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 10;
-}
-
+.header,
 .footer {
   /* flexbox内が併存する要素であふれてもこれは縮めない */
   flex-shrink: 0;
-  background: #fff;
+  background: var(--surface-color);
   padding: 10px 0;
-  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* 影を上向きに */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   z-index: 10;
-}
-
-.header-fixed {
-  top: 0;
-}
-
-.footer-fixed {
-  bottom: 0;
 }
 
 .date-navigation {
@@ -430,21 +425,21 @@ const resetHistoryAfterLoad = () => {
 .main-content-scrollable {
   flex-grow: 1; /* ヘッダーとフッター以外の残りの高さをすべて使う */
   overflow-y: auto; /* 内容が溢れたらここだけスクロールさせる */
-  background-color: #fff;
+  background-color: var(--bg-color);
 }
 
 .timetable {
   display: flex;
   flex-direction: column;
   width: 100%;
-  border-top: 1px solid #ddd;
+  border-top: 1px solid var(--border-color);
 }
 
 .time-row {
   display: grid;
   /* 左側のラベルを80px固定、右側を可変にする例 */
   grid-template-columns: 80px 1fr;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: background-color 0.2s;
 }
@@ -454,13 +449,14 @@ const resetHistoryAfterLoad = () => {
 }
 
 .time-row.is-selected {
-  background-color: #e3f2fd;
+  background-color: var(--accent-soft);
 }
 
 .time-label {
   padding: 10px;
   font-weight: bold;
-  background-color: #f5f5f5;
+  background-color: #f1efea;
+  color: var(--text-sub);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -557,7 +553,6 @@ const resetHistoryAfterLoad = () => {
   border-radius: 4px;
   font-size: 0.8rem;
   cursor: pointer;
-  font-weight: bold;
 }
 
 .modal-footer {
