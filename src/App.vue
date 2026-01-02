@@ -16,7 +16,7 @@
           v-for="slot in timeSlots"
           :key="slot.start"
           @click="selectTimeSlot(slot.start)"
-          :class="['time-row', { 'is-selected': currentTimeSlot === slot.start }]"
+          :class="['time-row', { 'is-selected': isSlotSelected(slot.start) }]"
           role="row"
         >
           <div class="time-label" role="cell">
@@ -29,7 +29,7 @@
               v-for="(actKey, index) in activities.get(slot.start)"
               :key="index"
               :style="{ backgroundColor: getActColor(actKey) }"
-              @click.stop="openEditModal(slot.start, index)"
+              @click="openEditModal(slot.start, index)"
             >
               {{ getActLabel(actKey) }}
             </div>
@@ -74,11 +74,11 @@
         <button @click="undoAct" :disabled="!canUndo" class="history-mini-button">↩ Undo</button>
         <button @click="redoAct" :disabled="!canRedo" class="history-mini-button">Redo ↪</button>
       </div>
-      <div class="category-buttons">
+      <div class="category-grid">
         <button
           v-for="category in categories"
           :key="category.key"
-          class="category-button"
+          class="mini-category-button"
           :style="{ backgroundColor: category.color }"
           @click="selectCategory(category.key)"
         >
@@ -160,6 +160,10 @@ const formattedDate = computed(() => {
     day: '2-digit',
     weekday: 'short',
   })
+})
+
+const isSlotSelected = computed(() => (slotStart: string) => {
+  return currentTimeSlot.value === slotStart
 })
 
 const canUndo = computed(() => {
@@ -482,24 +486,6 @@ const resetHistoryAfterLoad = () => {
 /* 最後のアイテムの余白を消す */
 .activity-item:last-child {
   margin-bottom: 0;
-}
-
-.category-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-around;
-  padding: 10px;
-  gap: 8px;
-}
-
-.category-button {
-  padding: 8px 12px;
-  border: none;
-  background: #f9f9f9;
-  cursor: pointer;
-  border-radius: 5px;
-  color: #333;
-  font-weight: bold;
 }
 
 .history-controls-inline {
