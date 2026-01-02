@@ -447,7 +447,7 @@ const resetHistoryAfterLoad = () => {
   border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: background-color 0.2s;
-  height: 120px;
+  height: 60px;
 }
 
 .time-row:hover {
@@ -459,7 +459,8 @@ const resetHistoryAfterLoad = () => {
 }
 
 .time-label {
-  padding: 10px;
+  padding: 4px;
+  font-size: 0.8rem;
   font-weight: bold;
   background-color: #f1efea;
   color: var(--text-sub);
@@ -485,10 +486,11 @@ const resetHistoryAfterLoad = () => {
   width: 100%;
   box-sizing: border-box;
   min-height: 0;
-  padding: 2px 8px;
-  font-size: 0.85rem;
-  margin-bottom: 2px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  font-size: clamp(0.35rem, 1.5vh, 0.65rem);
+  line-height: 1;
+  margin-bottom: 1px;
+  border-radius: 3px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis; /* はみ出た分を「...」にする */
