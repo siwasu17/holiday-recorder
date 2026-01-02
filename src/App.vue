@@ -399,7 +399,7 @@ const resetHistoryAfterLoad = () => {
 .app-container {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   color: var(--text-main);
   background-color: var(--bg-color);
