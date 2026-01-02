@@ -435,6 +435,7 @@ const resetHistoryAfterLoad = () => {
   border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: background-color 0.2s;
+  height: 120px;
 }
 
 .time-row:hover {
@@ -457,26 +458,30 @@ const resetHistoryAfterLoad = () => {
 
 .activity-cell {
   padding: 4px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-sizing: border-box;
 }
 
 .activity-item {
+  /* itemを広げたくなければこれを消す */
+  flex-grow: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   width: 100%;
   box-sizing: border-box;
-
-  padding: 2px 8px; /* 上下を極限まで詰め、左右に少し余裕を持たせる */
-  font-size: 0.85rem; /* 文字を少し小さく */
-  min-height: 24px; /* 最低限の高さだけ確保 */
-  margin-bottom: 2px; /* アイテム間の隙間も最小限に */
+  min-height: 0;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  margin-bottom: 2px;
   border-radius: 4px;
-
-  /* --- 文字が溢れた時の処理（1行に収める） --- */
-  white-space: nowrap; /* 折り返し禁止 */
-  overflow: hidden; /* はみ出しを隠す */
+  white-space: nowrap;
+  overflow: hidden;
   text-overflow: ellipsis; /* はみ出た分を「...」にする */
 }
+
 /* 最後のアイテムの余白を消す */
 .activity-item:last-child {
   margin-bottom: 0;
