@@ -409,7 +409,7 @@ const resetHistoryAfterLoad = () => {
   /* flexbox内が併存する要素であふれてもこれは縮めない */
   flex-shrink: 0;
   background: var(--surface-color);
-  padding-top: 10px;
+  padding-top: 5px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   z-index: 10;
 }
