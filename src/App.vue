@@ -1,6 +1,6 @@
 <template>
   <div id="activity-tracker-app" class="app-container">
-    <div class="header-fixed">
+    <div class="header">
       <div class="date-navigation">
         <button @click="previousDay" class="nav-button">&lt; Prev</button>
         <h2 class="current-date">{{ formattedDate }}</h2>
@@ -69,7 +69,7 @@
 
     <hr />
 
-    <div class="footer-fixed">
+    <div class="footer">
       <div class="history-controls-inline">
         <button @click="undoAct" :disabled="!canUndo" class="history-mini-button">↩ Undo</button>
         <button @click="redoAct" :disabled="!canRedo" class="history-mini-button">Redo ↪</button>
@@ -394,15 +394,22 @@ const resetHistoryAfterLoad = () => {
   overflow: hidden;
 }
 
-.header-fixed,
-.footer-fixed {
-  position: fixed;
-  left: 0;
-  right: 0;
-  z-index: 10;
+.header {
+  /* flexbox内が併存する要素であふれてもこれは縮めない */
+  flex-shrink: 0;
   background: #fff;
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.footer {
+  /* flexbox内が併存する要素であふれてもこれは縮めない */
+  flex-shrink: 0;
+  background: #fff;
+  padding: 10px 0;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1); /* 影を上向きに */
+  z-index: 10;
 }
 
 .header-fixed {
@@ -421,11 +428,9 @@ const resetHistoryAfterLoad = () => {
 }
 
 .main-content-scrollable {
-  flex-grow: 1;
-  overflow-y: auto;
-  /* ヘッダーとフッターの高さに応じて調整 */
-  padding-top: 70px;
-  padding-bottom: 180px;
+  flex-grow: 1; /* ヘッダーとフッター以外の残りの高さをすべて使う */
+  overflow-y: auto; /* 内容が溢れたらここだけスクロールさせる */
+  background-color: #fff;
 }
 
 .timetable {
